@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      list-style: none;
+      outline: none;
+      text-decoration: none;
+    }
+
+    #displayed {
+      overflow: hidden;
+      position: relative;
+      width: 500px;
+      height: 300px;
+      margin: 50px auto;
+      border: 1px solid #000;
+    }
+
+    #images {
+      position: absolute;
+      width: 2500px;
+      clear: both;
+      left: 0;
+    }
+
+    #images img {
+      float: left;
+      width: 500px;
+      height: 300px;
+    }
+
+    #btns {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+
+    #btns li {
+      float: left;
+      width: 10px;
+      height: 10px;
+      margin: 0 3px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      cursor: pointer;
+    }
+
+    #left,
+    #right {
+      position: absolute;
+      border: 10px solid transparent;
+      top: 45%;
+      transition: all .5s;
+      border-left-color: #fff;
+      border-right-color: #000;
+      cursor: pointer;
+    }
+
+    #right {
+      right: 0;
+      border-left-color: #000;
+      border-right-color: #fff;
+    }
+
+    #left:hover,
+    #right:hover {
+      background: rgba(80, 138, 177, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="displayed">
+    <div id="images">
+      <img src="./src/assets/img/demo2.jpg" alt="">
+      <img src="./src/assets/img/demo3.jpg" alt="">
+      <img src="./src/assets/img/demo4.jpg" alt="">
+      <img src="./src/assets/img/demo5.jpg" alt="">
+      <img src="./src/assets/img/demo2.jpg" alt="">
+    </div>
+    <ul id="btns">
+      <li style="background-color: red;"></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+    <span id="right"></span>
+    <span id="left"></span>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      // 获取所需DOM
+      const displayed = document.getElementById('displayed');
+      const leftBtn = document.getElementById('left');
+      const rightBtn = document.getElementById('right');
+      const btns = document.getElementById('btns').querySelectorAll('li');
+      const images = document.getElementById('images');
+      const img = images.querySelectorAll('img');
+      const imagesWidth = images.offsetWidth;
+      const imgWidth = img[0].offsetWidth;
+      // 开关锁，防止点击过快、圆点序号，用于给圆点上色
+      let lock = true,
+        index = 0;
+      //  动画函数，由于这里没有用回调函数，便没有设置回调函数形参
+      function animate(obj, target) {
+        clearInterval(obj.timer);
+        obj.timer = setInterval(() => {
+          if (obj.offsetLeft == target) {
+            clearInterval(obj.timer);
+            lock = true;
+          }
+          let step = (obj.offsetLeft - target) / 10;
+          step = step > 0 ? Math.ceil(step) : Math.floor(step);
+          obj.style.left = (obj.offsetLeft - step) + 'px';
+        }, 15);
+      }
+      // 设置被选中的小圆点样式
+      function btnStyle() {
+        for (const btn of btns) {
+          btn.style.setProperty('width', btns[index].offsetWidth + 'px');
+          btn.style.borderRadius = btns[index].offsetHeight + 'px';
+        }
+        btns[index].style.setProperty('width', 2 * btns[index].offsetWidth + 'px');
+        btns[index].style.borderRadius = btns[index].offsetHeight + 'px';
+      }
+      // 右按钮触发的事件处理程序
+      function right() {
+        if (lock) {
+          lock = false;
+          index = (index + 1) % btns.length;
+          btnStyle();
+          // 如果到了最右边的图片，跳转到第一张，否则正常滚动
+          if (images.offsetLeft === -(imagesWidth - imgWidth)) {
+            images.style.left = '0px';
+          }
+          animate(images, images.offsetLeft - imgWidth);
+        }
+      }
+      // 左按钮触发的事件处理程序
+      function left() {
+        if (lock) {
+          lock = false;
+          --index < 0 ? index = btns.length - 1 : '';
+          btnStyle();
+          if (images.offsetLeft === 0) {
+            images.style.left = -(imagesWidth - imgWidth) + 'px';
+          }
+          animate(images, images.offsetLeft + imgWidth);
+        }
+      }
+      // 为左、右按钮添加点击事件
+      rightBtn.addEventListener('click', right);
+      leftBtn.addEventListener('click', left);
+      // 为小圆点添加点击事件
+      for (let i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function () {
+          if (lock & i !== index) {
+            lock = false;
+            index = i;
+            btnStyle();
+            animate(images, -(i * imgWidth));
+          }
+        });
+      }
+      // 自动滚动
+      let timer = setInterval(() => {
+        right();
+      }, 4000);
+      displayed.addEventListener('mousemove', () => {
+        clearInterval(timer);
+      });
+      displayed.addEventListener('mouseleave', function () {
+        timer = setInterval(() => {
+          right();
+        }, 4000);
+      });
+    });
+  </script>
+</body>
+
+</html>
