@@ -2,13 +2,10 @@
   <div>
     <swiper>
       <swiper-item
-        v-for="item in banner"
-        :key="item.link"
+        v-for="(item, index) in banner"
+        :key="index"
       ><a :href="item.link">
-          <img
-            :src="item.image"
-            alt=""
-          >
+          <img :src="item.image">
         </a></swiper-item>
     </swiper>
   </div>
@@ -22,7 +19,9 @@ export default {
   props: {
     banner: {
       type: Array,
-      default: [],
+      default() {
+        return [];
+      },
     },
   },
   components: {
