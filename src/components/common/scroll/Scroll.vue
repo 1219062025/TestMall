@@ -35,14 +35,18 @@ export default {
     },
   },
   methods: {
-    scrollTo(x = 0, y = 0, time = 500) {
-      this.scroll.scrollTo(x, y, time);
+    scrollTo(x, y, time) {
+      this.scroll && this.scroll.scrollTo(x, y, time);
     },
     refresh() {
-      this.scroll.refresh();
+      // 与上this.scroll的原因是，判断此时BScroll对象是否已经存在
+      this.scroll && this.scroll.refresh();
     },
     finishPullUp() {
-      this.scroll.finishPullUp();
+      this.scroll && this.scroll.finishPullUp();
+    },
+    getScrollY() {
+      return this.scroll ? this.scroll.y : 0;
     },
   },
   mounted() {
@@ -59,7 +63,6 @@ export default {
         this.$emit("pullingUp");
       });
     });
-    setTimeout(() => {}, 20);
   },
 };
 </script>

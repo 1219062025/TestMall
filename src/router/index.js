@@ -3,12 +3,12 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
-// component: () => import(/* webpackChunkName: "about" */ 'views/About.vue')
 // 路由懒加载
 const Home = () => import(/* webpackChunkName: "group-app" */'views/home/Home')
 const CateGory = () => import(/* webpackChunkName: "group-app" */'views/category/CateGory')
 const Cart = () => import(/* webpackChunkName: "group-app" */'views/cart/Cart')
 const Profile = () => import(/* webpackChunkName: "group-app" */'views/profile/Profile')
+const Detail = () => import(/* webpackChunkName: "group-app" */'views/detail/Detail')
 const routes = [
   {
     path: "/",
@@ -33,6 +33,10 @@ const routes = [
     path: "/profile",
     name: 'profile',
     component: Profile
+  }, {
+    path: "/detail/:iid",
+    name: 'detail',
+    component: Detail
   }
 ]
 

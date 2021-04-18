@@ -1,8 +1,12 @@
 <template>
-  <div id="goods-item">
-    <a :href="goodsitem.link">
-      <img :src="goodsitem.show.img">
-    </a>
+  <div
+    id="goods-item"
+    @click="toDetail"
+  >
+    <img
+      :src="goodsitem.show.img"
+      @load="$bus.$emit('imgLoad')"
+    >
     <div class="goods-info">
       <p>{{goodsitem.title}}</p>
       <span class="price">￥{{goodsitem.price}}</span>
@@ -22,6 +26,11 @@ export default {
       },
     },
   },
+  methods: {
+    toDetail() {
+      this.$router.push(`/detail/${this.goodsitem.iid}`);
+    },
+  },
 };
 </script>
 
@@ -34,6 +43,7 @@ export default {
   text-align: center;
 }
 #goods-item img {
+  margin: 0 auto;
   width: 90%;
   border-radius: 10px;
 }

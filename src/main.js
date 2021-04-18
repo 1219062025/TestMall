@@ -5,6 +5,9 @@ import store from './store'
 
 Vue.config.productionTip = false
 
+// 创建一个新的Vue实例，该实例用来当作事件总线，发射或监听事件，要谨慎使用，在页面被销毁的时候，调用$off('EventName')销毁事件
+Vue.prototype.$bus = new Vue()
+
 new Vue({
   router,
   store,

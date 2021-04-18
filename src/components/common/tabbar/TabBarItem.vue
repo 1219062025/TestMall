@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     to() {
-      this.$router.replace(this.path);
+      this.$route.path !== this.path && this.$router.replace(this.path);
     },
   },
   computed: {

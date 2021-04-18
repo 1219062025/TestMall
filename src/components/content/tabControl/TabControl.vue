@@ -46,15 +46,12 @@ export default {
 
 <style scoped>
 #tabcontrol {
-  position: sticky;
-  top: 0;
   display: flex;
   background: #fff;
   text-align: center;
   font-size: 15px;
 }
 .tab-item {
-  margin: 10px 0 25px 0;
   flex: 1;
 }
 .tab-item span {

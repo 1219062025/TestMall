@@ -3,21 +3,34 @@
     <nav-bar centerColor="#fff">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control
+      ref="tabcontrol1"
+      :titles="['流行','新品','精选']"
+      :goods="goods"
+      @tabClick="changeType"
+      v-show="istabShow"
+      class="tab-fixed tab"
+    ></tab-control>
     <scroll
       class="scroll"
       ref="scroll"
-      :probeYype="3"
-      :pullUpLoad="true"
+      :probe-type="3"
+      :pull-up-load="true"
       @scroll="contentScroll"
       @pullingUp="upLoad"
     >
-      <home-swiper :banner="banner"></home-swiper>
+      <home-swiper
+        :banner="banner"
+        @swiperLoad="swiperLoad"
+      ></home-swiper>
       <recommend-view :recommend="recommend"></recommend-view>
       <feature-view></feature-view>
       <tab-control
-        :titles="['流行','新品','精选']"
+        ref="tabcontrol2"
+        :titles="titles"
         :goods="goods"
         @tabClick="changeType"
+        class="tab"
       ></tab-control>
       <goods-list :list="showGoods"></goods-list>
     </scroll>
@@ -29,6 +42,7 @@
 </template>
 
 <script>
+// 导入组件及方法
 // 绝对公共组件：在其他项目里也能用
 import NavBar from "components/common/navbar/NavBar";
 import Scroll from "components/common/scroll/Scroll";
@@ -36,18 +50,21 @@ import Scroll from "components/common/scroll/Scroll";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goodsList/GoodsList";
 import BackTop from "components/content/backtop/BackTop";
-// 专属视图组件：只针对某个模块使用
+// 专属子组件：只针对某个组件使用
 import HomeSwiper from "views/home/childComponents/HomeSwiper";
 import RecommendView from "views/home/childComponents/RecommendView";
 import FeatureView from "views/home/childComponents/FeatureView";
 
 // 封装后的网络请求方法
-import { getHomeMultidata, getHomeGoods } from "network/home.js";
+import { getHomeMultidata, getHomeGoods } from "network/home";
+// 防抖函数的封装
+import { debounce } from "common/utils";
 
 export default {
   name: "Home",
   data() {
     return {
+      titles: ["流行", "新品", "精选"],
       banner: [],
       recommend: [],
       // 商品信息
@@ -60,6 +77,11 @@ export default {
       currentType: "pop",
       // 返回顶部按钮是否显示
       isShowBackTop: false,
+      // 处于BScroll中TabControl组件距离顶部距离
+      taboffsetTop: 0,
+      // 是否显示被隐藏的用来实现吸顶效果的TabControl组件
+      istabShow: false,
+      savaY: 0,
     };
   },
   components: {
@@ -85,19 +107,30 @@ export default {
     /* 方法 */
     // 改变当前选中的产品类别
     changeType(index) {
+      this.$refs.tabcontrol1.isActive = index;
+      this.$refs.tabcontrol2.isActive = index;
       this.currentType = ["pop", "new", "sell"][index];
     },
     // 返回顶部
     backTop() {
-      this.$refs.scroll.scrollTo();
+      this.$refs.scroll.scrollTo(0, 0, 500);
     },
-    // 是否显示返回顶部按钮
+    // 滚动到一定距离之后进行一些判断
     contentScroll(position) {
+      // 滚动一定距离后显示返回顶部按钮
       this.isShowBackTop = position.y <= -1000;
+      // 滚动一定距离后处于BScroll外的TabControl组件吸顶
+      this.istabShow = position.y <= -this.taboffsetTop;
     },
     // 上拉加载更多商品信息
     upLoad() {
       this.getHomeGoods(this.currentType);
+    },
+    swiperLoad() {
+      // 等到轮播图的中的图片加载完后，计算当前TabControl距离顶部的距离
+      this.taboffsetTop =
+        this.$refs.tabcontrol2.$el.offsetTop -
+        this.$refs.tabcontrol2.$el.offsetHeight;
     },
     /* 网络请求相关的 */
     // 封装轮播图数据请求
@@ -113,13 +146,9 @@ export default {
       getHomeGoods(type, ++this.goods[type].page).then((res) => {
         // 将请求到的一页商品信息push进对应页面的数组中
         this.goods[type].list.push(...res.data.data.list);
-        // 这个判断针对的是页面刚创建好时，那时betterscroll对象还没有创建，所以是获取不到refresh方法的
-        if (this.$refs.scroll.scroll) {
-          // 注意this.$refs.scroll对应的是Scroll.vue组件对象，this.$refs.scroll.scroll对应的才是BSscroll对象
-          // 我们在Scroll.vue组件对象上封装了refresh、finishPullUp方法，下面两行代码代表分别调用了BSscroll对象的refresh、finishPullUp方法
-          this.$refs.scroll.refresh();
-          this.$refs.scroll.finishPullUp();
-        }
+        // 注意this.$refs.scroll对应的是Scroll.vue组件对象，this.$refs.scroll.scroll对应的才是BSscroll对象
+        // 我们在Scroll.vue组件对象上封装了finishPullUp方法，下面代码代表调用了BSscroll对象的finishPullUp方法
+        this.$refs.scroll && this.$refs.scroll.finishPullUp();
       });
     },
   },
@@ -138,20 +167,46 @@ export default {
       this.getHomeGoods(type);
     }
   },
+  mounted() {
+    // 在组件挂载完成之后就开始通过事件总线开始监听图片的加载，并在每个图片加载完后更新一次BSscroll计算的高度
+    // 对于更新BScroll计算高度的操作进行防抖封装
+    const refresh = debounce(this.$refs.scroll.refresh);
+    this.$bus.$on("imgLoad", () => {
+      refresh();
+    });
+  },
+  destroyed() {
+    // 在组件被销毁之后要及时地删除事件，不然下次组件被创建，就同时存在两个相同事件，会报错
+    this.$bus.$off("imgLoad");
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.savaY, 0);
+    this.$refs.scroll.refresh();
+  },
+  deactivated() {
+    this.savaY = this.$refs.scroll.getScrollY();
+  },
 };
 </script>
 
 <style scoped>
 #home {
-  /* position: relative; */
+  position: relative;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
 }
 .scroll {
-  /* position: absolute;
-  top: 49px;
-  bottom: 49px;
-  width: 100%; */
   height: calc(100% - 98px);
+}
+
+.tab-fixed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+.tab {
+  padding: 10px 0 15px 0;
 }
 </style>

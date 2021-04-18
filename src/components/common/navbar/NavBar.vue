@@ -36,8 +36,7 @@ export default {
 
 <style scoped>
 .nav-bar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 99;
   display: flex;
   width: 100%;
