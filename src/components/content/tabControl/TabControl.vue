@@ -47,7 +47,7 @@ export default {
 <style scoped>
 #tabcontrol {
   position: sticky;
-  top: 49px;
+  top: 0;
   display: flex;
   background: #fff;
   text-align: center;

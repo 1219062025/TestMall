@@ -47,18 +47,6 @@ export default {
 </script>
 
 <style scoped>
-@font-face {
-  font-family: "icomoon";
-  src: url("~assets/fonts/icomoon.eot?rz0d0j");
-  src: url("~assets/fonts/icomoon.eot?rz0d0j#iefix") format("embedded-opentype"),
-    url("~assets/fonts/icomoon.ttf?rz0d0j") format("truetype"),
-    url("~assets/fonts/icomoon.woff?rz0d0j") format("woff"),
-    url("~assets/fonts/icomoon.svg?rz0d0j#icomoon") format("svg");
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
-}
-
 .icommon {
   font-family: "icomoon";
   margin: 6px 0;
