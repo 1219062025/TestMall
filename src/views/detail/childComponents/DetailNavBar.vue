@@ -1,35 +1,28 @@
 <template>
-  <div>
-    <nav-bar :backColor="'#fff'">
-      <template #left>
-        <div
-          class="icommon"
-          @click="back"
-        >
-          
-        </div>
-      </template>
+  <div class="detail-nav">
+    <div
+      class="icommon"
+      @click="back"
+    >
+      
+    </div>
 
-      <template #center>
-        <div class="tabcontrol">
-          <div
-            class="tab-item"
-            v-for="(item, index) in titles"
-            :key=index
-          >
-            <span
-              @click="change(index)"
-              :class="{active: isActive===index}"
-            >{{item}}</span>
-          </div>
-        </div>
-      </template>
-    </nav-bar>
+    <div class="tab-nav">
+      <div
+        class="tab-nav-item"
+        v-for="(item, index) in titles"
+        :key=index
+      >
+        <span
+          @click="change(index)"
+          :class="{active: isActive===index}"
+        >{{item}}</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import NavBar from "components/common/navbar/NavBar";
 export default {
   name: "DetailNavBar",
   data() {
@@ -37,9 +30,6 @@ export default {
       isActive: 0,
       titles: ["商品", "参数", "评论", "推荐"],
     };
-  },
-  components: {
-    NavBar,
   },
   methods: {
     // 返回前一页
@@ -55,19 +45,30 @@ export default {
 </script>
 
 <style scoped>
+.detail-nav {
+  position: relative;
+  z-index: 99;
+  display: flex;
+  width: 100%;
+  text-align: center;
+  line-height: 49px;
+}
 .icommon {
+  width: 60px;
   font-family: "icomoon";
 }
-.tabcontrol {
+.tab-nav {
   display: flex;
+  flex: 1;
+  margin-right: 60px;
   background: #fff;
   text-align: center;
   font-size: 15px;
 }
-.tab-item {
+.tab-nav-item {
   flex: 1;
 }
-.tab-item span {
+.tab-nav-item span {
   padding: 5px;
 }
 .active {

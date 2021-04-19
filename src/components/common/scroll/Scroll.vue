@@ -56,12 +56,14 @@ export default {
         click: this.click,
         pullUpLoad: this.pullUpLoad,
       });
-      this.scroll.on("scroll", (position) => {
-        this.$emit("scroll", position);
-      });
-      this.scroll.on("pullingUp", () => {
-        this.$emit("pullingUp");
-      });
+      this.probeType &&
+        this.scroll.on("scroll", (position) => {
+          this.$emit("scroll", position);
+        });
+      this.pullUpLoad &&
+        this.scroll.on("pullingUp", () => {
+          this.$emit("pullingUp");
+        });
     });
   },
 };

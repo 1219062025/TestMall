@@ -13,7 +13,7 @@
     <div class="indicator">
       <slot
         name="indicator"
-        v-if="showIndicator && slideCount>1"
+        v-if="showIndicator && slideCount > 1"
       >
         <div
           v-for="(item, index) in slideCount"
