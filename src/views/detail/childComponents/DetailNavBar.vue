@@ -14,7 +14,7 @@
         :key=index
       >
         <span
-          @click="change(index)"
+          @click="tabClick(index)"
           :class="{active: isActive===index}"
         >{{item}}</span>
       </div>
@@ -37,9 +37,15 @@ export default {
       this.$router.go(-1);
     },
     // 点击导航栏选项卡改变对应选项样式
-    change(index) {
+    tabClick(index) {
       this.isActive = index;
+      this.$emit("scrollTab", index);
     },
+  },
+  mounted() {
+    this.$bus.$on("tabChange", (index) => {
+      this.isActive !== index ? (this.isActive = index) : "";
+    });
   },
 };
 </script>
