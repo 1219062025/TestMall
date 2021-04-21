@@ -42,11 +42,6 @@ export default {
       this.$emit("scrollTab", index);
     },
   },
-  mounted() {
-    this.$bus.$on("tabChange", (index) => {
-      this.isActive !== index ? (this.isActive = index) : "";
-    });
-  },
 };
 </script>
 

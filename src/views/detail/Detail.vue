@@ -1,11 +1,14 @@
 <template>
   <div id="detail">
-    <detail-nav-bar @scrollTab="scrollTab"></detail-nav-bar>
+    <detail-nav-bar
+      @scrollTab="scrollTab"
+      ref="navBar"
+    ></detail-nav-bar>
     <scroll
       :probeType="3"
       @scroll="scroll"
       class="detail-scroll"
-      ref="dscroll"
+      ref="scroll"
     >
       <detail-swiper :top-images="topImages"></detail-swiper>
       <detail-base-info :goods="goods"></detail-base-info>
@@ -19,6 +22,11 @@
         ref="paramInfo"
       ></detail-param-info>
     </scroll>
+    <back-top
+      @click.native="backTop"
+      v-show="isShowBackTop"
+    ></back-top>
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
   </div>
 </template>
 
@@ -32,14 +40,18 @@ import DetailBaseInfo from "views/detail/childComponents/DetailBaseInfo";
 import DetailShopInfo from "views/detail/childComponents/DetailShopInfo";
 import DetailGoodsInfo from "views/detail/childComponents/DetailGoodsInfo";
 import DetailParamInfo from "views/detail/childComponents/DetailParamInfo";
+import DetailBottomBar from "views/detail/childComponents/DetailBottomBar";
 // 方法函数
 import { debounce } from "common/utils";
 
 // 网络请求获取数据方法
 import { getDetail, Goods, Shop } from "network/detail";
 
+import { backTopMixin } from "common/mixin";
+
 export default {
   name: "Detail",
+  mixins: [backTopMixin],
   data() {
     return {
       iid: null,
@@ -51,8 +63,10 @@ export default {
       detailInfo: {},
       itemParams: {},
       refresh() {},
+      paramInfo: {},
       getThemeY() {},
       themeY: [0],
+      currentIndex: 0,
     };
   },
   components: {
@@ -63,6 +77,7 @@ export default {
     Scroll,
     DetailGoodsInfo,
     DetailParamInfo,
+    DetailBottomBar,
   },
   methods: {
     // 详情图片加载完，刷新BScorll
@@ -72,15 +87,23 @@ export default {
       this.getThemeY();
     },
     scrollTab(index) {
-      this.$refs.dscroll.scrollTo(0, -this.themeY[index], 500);
+      this.$refs.scroll.scrollTo(0, -this.themeY[index], 500);
     },
     scroll(position) {
-      for (let i = 0; i < this.themeY.length; i++) {
-        if (Math.ceil(position.y) < -this.themeY[i]) {
-          // this.$bus.$emit("tabChange", i);
+      this.isShowBackTop = position.y <= -1000;
+      for (let i = 0; i < this.themeY.length - 1; i++) {
+        if (
+          this.currentIndex !== i &&
+          -position.y >= this.themeY[i] &&
+          -position.y < this.themeY[i + 1]
+        ) {
+          this.currentIndex = i;
+          this.$refs.navBar.isActive = this.currentIndex;
+          // 滚动一定距离后显示返回顶部按钮
         }
       }
     },
+    addToCart() {},
   },
   created() {
     this.iid = this.$route.params.iid;
@@ -95,7 +118,7 @@ export default {
       );
       // 卖家信息
       this.shop = new Shop(data.shopInfo);
-      // 详情也信息
+      // 详情页信息
       this.detailInfo = data.detailInfo;
       // 商品参数信息
       this.itemParams = data.itemParams;
@@ -104,10 +127,18 @@ export default {
     });
   },
   mounted() {
+    /* 
+    这里将组件的根元素先缓存下来，
+    原因很简单，因为如果用户一进到详情页就很快的退回主页时，
+    由于防抖封装后的函数getThemeY需要在一定时间后获取this.$refs.paramInfo.$el进行计算，
+    可很快的就退回主页代表this.$refs.paramInfo.$el已经被销毁了，那么getThemeY函数获取不到就报错 
+    */
+    this.paramInfo = this.$refs.paramInfo.$el;
     // 使用debounce对函数进行防抖封装
-    this.refresh = debounce(this.$refs.dscroll.refresh);
+    this.refresh = debounce(this.$refs.scroll.refresh);
     this.getThemeY = debounce(() => {
-      this.themeY[1] = this.$refs.paramInfo.$el.offsetTop;
+      this.themeY[1] = this.paramInfo.offsetTop;
+      this.themeY[this.themeY.length] = Number.MAX_VALUE;
     });
   },
   updated() {
@@ -129,7 +160,11 @@ export default {
   position: relative;
   z-index: 99;
   background: #fff;
-  height: calc(100% - 49px);
+  height: calc(100% - 98px);
   overflow: hidden;
+}
+.icommon {
+  position: absolute;
+  z-index: 99;
 }
 </style>

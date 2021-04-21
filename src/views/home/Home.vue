@@ -49,7 +49,6 @@ import Scroll from "components/common/scroll/Scroll";
 // 相对公共组件：只针对当前项目的不同模块使用
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goodsList/GoodsList";
-import BackTop from "components/content/backtop/BackTop";
 // 专属子组件：只针对某个组件使用
 import HomeSwiper from "views/home/childComponents/HomeSwiper";
 import RecommendView from "views/home/childComponents/RecommendView";
@@ -60,8 +59,11 @@ import { getHomeMultidata, getHomeGoods } from "network/home";
 // 防抖函数的封装
 import { debounce } from "common/utils";
 
+import { backTopMixin } from "common/mixin";
+
 export default {
   name: "Home",
+  mixins: [backTopMixin],
   data() {
     return {
       titles: ["流行", "新品", "精选"],
@@ -75,8 +77,6 @@ export default {
       },
       // 当前选中的商品分类
       currentType: "pop",
-      // 返回顶部按钮是否显示
-      isShowBackTop: false,
       // 处于BScroll中TabControl组件距离顶部距离
       taboffsetTop: 0,
       // 是否显示被隐藏的用来实现吸顶效果的TabControl组件
@@ -100,7 +100,6 @@ export default {
     // 封装的滚动库
     Scroll,
     // 返回顶部按钮
-    BackTop,
   },
 
   methods: {
@@ -111,10 +110,7 @@ export default {
       this.$refs.tabcontrol2.isActive = index;
       this.currentType = ["pop", "new", "sell"][index];
     },
-    // 返回顶部
-    backTop() {
-      this.$refs.scroll.scrollTo(0, 0, 500);
-    },
+
     // 滚动到一定距离之后进行一些判断
     contentScroll(position) {
       // 滚动一定距离后显示返回顶部按钮
