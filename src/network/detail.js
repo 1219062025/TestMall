@@ -14,7 +14,7 @@ export class Goods {
     // 描述
     this.desc = itemInfo.desc
     // 打折后价格
-    this.newPrice = itemInfo.price
+    this.newPrice = itemInfo.lowNowPrice
     // 打折前价格
     this.oldPrice = itemInfo.oldPrice
     // 折扣描述

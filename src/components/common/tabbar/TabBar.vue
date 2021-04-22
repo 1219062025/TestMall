@@ -17,5 +17,6 @@ export default {
   bottom: 0;
   width: 100%;
   display: flex;
+  background: linear-gradient(to top, #fff, #ece5e5);
 }
 </style>

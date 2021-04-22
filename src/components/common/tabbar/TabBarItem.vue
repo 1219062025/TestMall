@@ -45,7 +45,6 @@ export default {
   height: 49px;
   flex: 1;
   text-align: center;
-  background: linear-gradient(to top, #fff, #ece5e5);
 }
 .active {
   color: red;

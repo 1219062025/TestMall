@@ -8,7 +8,7 @@
       <template #text>首页</template>
     </tab-bar-item>
 
-    <tab-bar-item path="/cart">
+    <tab-bar-item path="/category">
       <p
         slot="icon"
         class="icommon"
@@ -16,7 +16,7 @@
       <template #text>分类</template>
     </tab-bar-item>
 
-    <tab-bar-item path="/category">
+    <tab-bar-item path="/cart">
       <p
         slot="icon"
         class="icommon"

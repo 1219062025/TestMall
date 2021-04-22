@@ -1,5 +1,14 @@
 <template>
   <div id="detail">
+    <!-- <ul>
+      <li
+        v-for="(item, index) in $store.state.cartList"
+        :key="index"
+      >
+        {{index}}
+        {{item.count}}
+      </li>
+    </ul> -->
     <detail-nav-bar
       @scrollTab="scrollTab"
       ref="navBar"
@@ -47,25 +56,36 @@ import { debounce } from "common/utils";
 // 网络请求获取数据方法
 import { getDetail, Goods, Shop } from "network/detail";
 
+// 混入
 import { backTopMixin } from "common/mixin";
 
 export default {
   name: "Detail",
+  // 混入返回顶部按钮
   mixins: [backTopMixin],
   data() {
     return {
+      // 商品唯一标识
       iid: null,
-      // 轮播图数组
+      // 轮播图图片
       topImages: [],
-      // 商品信息对象
+      // 商品基本信息：价格、描述、打折等
       goods: {},
+      // 店铺信息
       shop: {},
+      // 商品展示效果信息：穿着效果的图片等
       detailInfo: {},
+      // 商品参数信息：尺码、颜色等
       itemParams: {},
+      // 封装后的刷新BScroll函数
       refresh() {},
+      // 存储组件DetailParamInfo的根元素
       paramInfo: {},
+      // 获取y轴函数
       getThemeY() {},
+      // 存储各个组件的y轴值
       themeY: [0],
+      // tab栏被选中的选项的序号
       currentIndex: 0,
     };
   },
@@ -86,9 +106,11 @@ export default {
       this.refresh();
       this.getThemeY();
     },
+    // 点击选项卡滚动到对应组件
     scrollTab(index) {
       this.$refs.scroll.scrollTo(0, -this.themeY[index], 500);
     },
+    // 滚动
     scroll(position) {
       this.isShowBackTop = position.y <= -1000;
       for (let i = 0; i < this.themeY.length - 1; i++) {
@@ -103,7 +125,22 @@ export default {
         }
       }
     },
-    addToCart() {},
+    // 添加到购物车
+    addToCart() {
+      // 将商品信息放入一个对象product中，该对象当作负载上的一个属性被提交
+      setTimeout(() => {
+        const product = {};
+        product.image = this.topImages[0];
+        product.title = this.goods.title;
+        product.desc = this.goods.desc;
+        product.price = this.goods.newPrice;
+        product.iid = this.iid;
+        this.$store.dispatch({
+          type: "clickCart",
+          product,
+        });
+      }, 200);
+    },
   },
   created() {
     this.iid = this.$route.params.iid;
@@ -118,11 +155,11 @@ export default {
       );
       // 卖家信息
       this.shop = new Shop(data.shopInfo);
-      // 详情页信息
+      // 商品展示效果信息
       this.detailInfo = data.detailInfo;
       // 商品参数信息
       this.itemParams = data.itemParams;
-      // 轮播图
+      // 轮播图图片
       this.topImages = data.itemInfo.topImages;
     });
   },

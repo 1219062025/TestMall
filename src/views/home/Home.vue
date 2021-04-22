@@ -59,10 +59,12 @@ import { getHomeMultidata, getHomeGoods } from "network/home";
 // 防抖函数的封装
 import { debounce } from "common/utils";
 
+// 混入
 import { backTopMixin } from "common/mixin";
 
 export default {
   name: "Home",
+  // 混入返回顶部按钮
   mixins: [backTopMixin],
   data() {
     return {
@@ -122,6 +124,7 @@ export default {
     upLoad() {
       this.getHomeGoods(this.currentType);
     },
+    // 轮播图图片加载完后执行操作
     swiperLoad() {
       // 等到轮播图的中的图片加载完后，计算当前TabControl距离顶部的距离
       this.taboffsetTop =
@@ -149,7 +152,7 @@ export default {
     },
   },
   computed: {
-    // 传入GoodList组件，告诉当前展示哪个商品类别
+    // 传入GoodList组件，告诉当前应该展示哪个商品类别
     showGoods() {
       return this.goods[this.currentType].list;
     },
@@ -164,9 +167,9 @@ export default {
     }
   },
   mounted() {
-    // 在组件挂载完成之后就开始通过事件总线开始监听图片的加载，并在每个图片加载完后更新一次BSscroll计算的高度
     // 对于更新BScroll计算高度的操作进行防抖封装
     const refresh = debounce(this.$refs.scroll.refresh);
+    // 在组件挂载完成之后就开始通过事件总线开始监听图片的加载，并在每个图片加载完后更新一次BSscroll计算的高度
     this.$bus.$on("imgLoad", () => {
       refresh();
     });
@@ -176,10 +179,13 @@ export default {
     this.$bus.$off("imgLoad");
   },
   activated() {
+    // 切换回到Home页面时滚动到离开前保存好的位置
     this.$refs.scroll.scrollTo(0, this.savaY, 0);
+    // 保守起见，刷新一次BScroll
     this.$refs.scroll.refresh();
   },
   deactivated() {
+    // 切换离开Home页面时保存当前BScroll滚动的y轴位置
     this.savaY = this.$refs.scroll.getScrollY();
   },
 };
