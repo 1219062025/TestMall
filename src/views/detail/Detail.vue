@@ -1,14 +1,5 @@
 <template>
   <div id="detail">
-    <!-- <ul>
-      <li
-        v-for="(item, index) in $store.state.cartList"
-        :key="index"
-      >
-        {{index}}
-        {{item.count}}
-      </li>
-    </ul> -->
     <detail-nav-bar
       @scrollTab="scrollTab"
       ref="navBar"
@@ -50,6 +41,7 @@ import DetailShopInfo from "views/detail/childComponents/DetailShopInfo";
 import DetailGoodsInfo from "views/detail/childComponents/DetailGoodsInfo";
 import DetailParamInfo from "views/detail/childComponents/DetailParamInfo";
 import DetailBottomBar from "views/detail/childComponents/DetailBottomBar";
+
 // 方法函数
 import { debounce } from "common/utils";
 
@@ -128,18 +120,25 @@ export default {
     // 添加到购物车
     addToCart() {
       // 将商品信息放入一个对象product中，该对象当作负载上的一个属性被提交
-      setTimeout(() => {
-        const product = {};
-        product.image = this.topImages[0];
-        product.title = this.goods.title;
-        product.desc = this.goods.desc;
-        product.price = this.goods.newPrice;
-        product.iid = this.iid;
-        this.$store.dispatch({
+      // 为了避免用户在商品信息还没加载出来就就点加入购物车导致购物车里面的商品信息为空白的情况
+      // 进行异步添加，点击超过500Ms商品信息还没加载好的提示网络问题
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.newPrice;
+      product.iid = this.iid;
+      this.$store
+        .dispatch({
           type: "clickCart",
           product,
+        })
+        .then((value) => {
+          this.$toast.show(value, 2000);
+        })
+        .catch((reason) => {
+          this.$toast.show(reason, 2000);
         });
-      }, 200);
     },
   },
   created() {

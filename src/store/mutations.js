@@ -1,6 +1,7 @@
 export default {
   // 购物车添加商品
   addCart(state, payload) {
+    payload.product.checked = true
     payload.product.count = 1
     state.cartList.push(payload.product)
   },

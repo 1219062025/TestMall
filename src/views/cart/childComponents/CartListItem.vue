@@ -1,30 +1,27 @@
 <template>
   <div id="cart-list-item">
-    <div
-      class="current"
-      :class="{active: isActive}"
-      @click="cutActive"
-    ></div>
+    <cart-check
+      :goods-check="goods.checked"
+      @click.native="isChecked"
+    ></cart-check>
     <img :src="goods.image">
     <div class="goods-info">
       <p class="title">{{goods.title}}</p>
       <p class="desc">{{goods.desc}}</p>
       <div clas="">
-        <span class="price">￥{{price}}</span>
-        <span class="count">×{{goods.count}}</span>
+        <span class="price">￥{{goods.price}}</span>
+        <span>×{{goods.count}}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import CartCheck from "./CartCheck";
 export default {
   name: "CartListItem",
-  data() {
-    return {
-      isActive: false,
-      price: 0,
-    };
+  components: {
+    CartCheck,
   },
   props: {
     goods: {
@@ -35,15 +32,9 @@ export default {
     },
   },
   methods: {
-    cutActive() {
-      this.isActive = !this.isActive;
+    isChecked() {
+      this.goods.checked = !this.goods.checked;
     },
-  },
-  created() {
-    this.price = (this.goods.price * this.goods.count).toFixed(2);
-  },
-  mounted() {
-    // console.log(this.goods);
   },
 };
 </script>
@@ -65,12 +56,7 @@ export default {
 #cart-list-item > * {
   float: left;
 }
-.current {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #000;
-  border-radius: 50%;
-}
+
 .goods-info {
   display: flex;
   width: calc(100% - 120px);
@@ -104,8 +90,5 @@ export default {
 .price {
   font-size: 20px;
   color: #ff5500;
-}
-.active {
-  background: var(--color-high-text);
 }
 </style>
